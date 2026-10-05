@@ -1,0 +1,898 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>KFC - Portal Oficial & Consultor de Menú</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700;800;900&display=swap" rel="stylesheet">
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        kfc: {
+                            red: '#E4002B',
+                            darkred: '#9B001C',
+                            black: '#111111',
+                            cream: '#F8F5F0',
+                            gold: '#FFB800'
+                        }
+                    },
+                    fontFamily: {
+                        sans: ['Poppins', 'sans-serif']
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        /* Custom Styles & Visual Depth */
+        .kfc-stripes {
+            background: repeating-linear-gradient(
+                45deg,
+                #E4002B,
+                #E4002B 20px,
+                #ffffff 20px,
+                #ffffff 40px
+            );
+        }
+        .bg-pattern {
+            background-color: #F8F5F0;
+            background-image: radial-gradient(#E4002B 0.5px, transparent 0.5px), radial-gradient(#111111 0.5px, #F8F5F0 0.5px);
+            background-size: 20px 20px;
+            background-position: 0 0, 10px 10px;
+            background-opacity: 0.05;
+        }
+        .scrollbar-thin::-webkit-scrollbar {
+            height: 6px;
+            width: 6px;
+        }
+        .scrollbar-thin::-webkit-scrollbar-thumb {
+            background-color: #E4002B;
+            border-radius: 10px;
+        }
+        .scrollbar-thin::-webkit-scrollbar-track {
+            background: #e5e7eb;
+        }
+        .custom-glass {
+            background: rgba(255, 255, 255, 0.85);
+            backdrop-filter: blur(12px);
+        }
+    </style>
+</head>
+<body class="bg-kfc-cream text-gray-900 font-sans antialiased min-h-screen flex flex-col justify-between selection:bg-kfc-red selection:text-white">
+
+    <!-- Top Bar Notice -->
+    <div class="bg-kfc-black text-white text-xs sm:text-sm py-2 px-4 text-center flex justify-between items-center z-50">
+        <div class="container mx-auto flex justify-between items-center">
+            <span class="flex items-center gap-2">
+                <span class="bg-kfc-red text-white text-[10px] uppercase font-extrabold px-2 py-0.5 rounded-full animate-pulse">¡Nuevo!</span>
+                Descubre las ultimas actualizaciones y promociones exclusivas.
+            </span>
+            <div class="hidden md:flex items-center space-x-6 text-xs">
+                <span><i class="fa-solid fa-clock mr-1 text-kfc-gold"></i> Flash Deals hasta medianoche</span>
+                <span><i class="fa-solid fa-truck-fast mr-1 text-kfc-gold"></i> Envíos en +30 mins</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- Main Header -->
+    <header class="sticky top-0 z-40 custom-glass border-b border-gray-200 shadow-sm">
+        <div class="container mx-auto px-4 py-3 flex items-center justify-between gap-4">
+            
+            <!-- Logo Branding -->
+            <div class="flex items-center gap-3">
+                <a href="#" class="flex items-center gap-2 group">
+                    <div class="w-10 h-10 bg-kfc-red rounded-full flex items-center justify-center text-white font-black text-xl shadow-md transform group-hover:scale-105 transition">
+                        KFC
+                    </div>
+                    <div class="leading-none">
+                        <span class="block font-black text-2xl tracking-tighter text-kfc-black">KFC</span>
+                        <span class="text-[10px] tracking-widest text-kfc-red uppercase font-bold">Consultor Oficial</span>
+                    </div>
+                </a>
+            </div>
+
+            <!-- Search Bar -->
+            <div class="flex-1 max-w-md hidden md:block relative">
+                <i class="fa-solid fa-magnifying-glass absolute left-3 top-1/2 -translate-y-1/2 text-gray-400"></i>
+                <input type="text" id="searchInput" oninput="filterMenu()" placeholder="Buscar receta, hamburguesa, tiras, combos..." class="w-full bg-gray-100 pl-10 pr-4 py-2 rounded-full text-sm border border-transparent focus:border-kfc-red focus:bg-white focus:outline-none transition">
+            </div>
+
+            <!-- Header Actions -->
+            <div class="flex items-center gap-3">
+                <button onclick="toggleStoreFinder()" class="hidden sm:flex items-center gap-2 text-xs font-bold bg-white border border-gray-300 hover:border-kfc-red text-gray-700 px-3 py-2 rounded-full transition shadow-sm">
+                    <i class="fa-solid fa-location-dot text-kfc-red"></i>
+                    <span id="currentStoreText">Mi KFC: Centro</span>
+                </button>
+
+                <button onclick="toggleCartModal()" class="relative bg-kfc-red hover:bg-kfc-darkred text-white p-2.5 rounded-full shadow-lg transition flex items-center justify-center">
+                    <i class="fa-solid fa-bucket text-lg"></i>
+                    <span id="cartCountBadge" class="absolute -top-1 -right-1 bg-kfc-gold text-kfc-black text-xs font-black w-5 h-5 rounded-full flex items-center justify-center border-2 border-white shadow">0</span>
+                </button>
+            </div>
+        </div>
+
+        <!-- Mobile Search Input -->
+        <div class="p-2 md:hidden border-t border-gray-100">
+            <div class="relative">
+                <i class="fa-solid fa-magnifying-glass absolute left-3 top-1/2 -translate-y-1/2 text-gray-400"></i>
+                <input type="text" id="mobileSearchInput" oninput="filterMenuMobile()" placeholder="Buscar en el menú KFC..." class="w-full bg-gray-100 pl-10 pr-4 py-2 rounded-full text-sm border border-transparent focus:border-kfc-red focus:bg-white focus:outline-none">
+            </div>
+        </div>
+    </header>
+
+    <section class="relative bg-kfc-black text-white overflow-hidden">
+        <div class="absolute inset-0 opacity-20 kfc-stripes"></div>
+        <div class="container mx-auto px-4 py-10 md:py-16 relative z-10 grid md:grid-cols-2 gap-8 items-center">
+            <div class="space-y-4">
+                <span class="inline-block bg-kfc-gold text-kfc-black font-extrabold text-xs px-3 py-1 rounded-full uppercase tracking-wider">
+                    <i class="fa-solid fa-sparkles mr-1"></i> Lanzamiento de Temporada
+                </span>
+                <h1 class="text-3xl sm:text-5xl font-black uppercase tracking-tight leading-tight">
+                    Nuevas recetas <span class="text-kfc-red">Ultra Crujientes</span>
+                </h1>
+                <p class="text-gray-300 text-sm sm:text-base max-w-lg">
+                    Prueba el nuevo <strong>Spicy Chizza</strong>, las <strong>Salsas Especiales del Coronel</strong> y las <strong>Secret Recipe Fries v2</strong>. Asesoramiento nutricional y recomendaciones personalizadas a tu disposición.
+                </p>
+                <div class="flex flex-wrap gap-3 pt-2">
+                    <button onclick="openColonelChat('recomendacion')" class="bg-kfc-red hover:bg-kfc-darkred text-white font-bold px-6 py-3 rounded-full text-sm shadow-xl transition flex items-center gap-2">
+                        <i class="fa-solid fa-robot"></i> Pedir Recomendación IA
+                    </button>
+                    <a href="#menu-section" class="bg-white/10 hover:bg-white/20 text-white font-bold px-6 py-3 rounded-full text-sm backdrop-blur transition border border-white/20 flex items-center gap-2">
+                        Ver Menú Completo <i class="fa-solid fa-arrow-down"></i>
+                    </a>
+                </div>
+            </div>
+
+            <!-- Hero Image Banner Card -->
+            <div class="relative flex justify-center">
+                <div class="relative bg-gradient-to-br from-kfc-red to-red-900 p-6 rounded-3xl shadow-2xl border border-red-500/30 max-w-md w-full text-center group">
+                    <div class="absolute -top-4 -right-4 bg-kfc-gold text-kfc-black font-black text-xs px-3 py-1.5 rounded-full shadow-lg transform rotate-6">
+                        -25% HOY
+                    </div>
+                    <img src="https://images.unsplash.com/photo-1626645738196-c2a7c87a8f58?auto=format&fit=crop&w=600&q=80" alt="KFC Feast" class="w-full h-52 object-cover rounded-2xl shadow-md group-hover:scale-102 transition duration-300">
+                    <div class="mt-4 text-left">
+                        <h3 class="font-extrabold text-lg text-white">Mega Bucket Edición Limitada</h3>
+                        <p class="text-xs text-red-100">8 piezas de receta secreta + 4 Tenders + 2 Papas grandes + 4 Salsas a elección.</p>
+                        <div class="mt-3 flex items-center justify-between">
+                            <span class="text-xl font-black text-kfc-gold">$18.99 <span class="text-xs line-through text-red-200 font-normal">$24.99</span></span>
+                            <button onclick="addToCart(1)" class="bg-white text-kfc-red font-extrabold text-xs px-4 py-2 rounded-full hover:bg-kfc-gold hover:text-kfc-black transition shadow">
+                                + Agregar
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section class="bg-white py-6 border-b border-gray-200">
+        <div class="container mx-auto px-4">
+            <div class="flex flex-col md:flex-row items-center justify-between gap-4 bg-red-50 border border-red-100 p-4 rounded-2xl">
+                <div class="flex items-center gap-3">
+                    <div class="w-12 h-12 bg-kfc-red/10 rounded-full flex items-center justify-center text-kfc-red text-xl font-bold flex-shrink-0">
+                        <i class="fa-solid fa-bolt text-kfc-red"></i>
+                    </div>
+                    <div>
+                        <span class="text-xs font-bold text-kfc-red uppercase tracking-wider">Oferta Relámpago del Día</span>
+                        <h4 class="font-black text-gray-900 text-sm sm:text-base">Código promocional: <span class="text-kfc-red underline font-mono">KRUNCH2026</span></h4>
+                    </div>
+                </div>
+
+                <!-- Timer -->
+                <div class="flex items-center gap-2">
+                    <span class="text-xs text-gray-500 font-medium">Expira en:</span>
+                    <div id="countdownTimer" class="flex gap-1 font-mono text-sm font-bold text-white bg-kfc-black px-3 py-1.5 rounded-lg">
+                        <span id="hours">03</span>:<span id="minutes">45</span>:<span id="seconds">12</span>
+                    </div>
+                    <button onclick="copyCouponCode('KRUNCH2026')" class="bg-kfc-black hover:bg-gray-800 text-white text-xs font-bold px-4 py-2 rounded-lg transition ml-2">
+                        <i class="fa-solid fa-copy mr-1"></i> Copiar Cupón
+                    </button>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <main id="menu-section" class="container mx-auto px-4 py-10 flex-1">
+        
+        <!-- Section Title & Filter Tabs -->
+        <div class="flex flex-col md:flex-row md:items-end justify-between mb-8 gap-4">
+            <div>
+                <span class="text-xs font-extrabold text-kfc-red uppercase tracking-widest">Catálogo Actualizado</span>
+                <h2 class="text-2xl sm:text-3xl font-black text-kfc-black">MENÚ & NOVEDADES</h2>
+            </div>
+
+            <!-- Filter Buttons -->
+            <div class="flex gap-2 overflow-x-auto pb-2 scrollbar-thin max-w-full">
+                <button onclick="filterCategory('all')" class="category-btn active border-2 border-kfc-red bg-kfc-red text-white text-xs font-extrabold px-4 py-2 rounded-full whitespace-nowrap transition">
+                    Todos
+                </button>
+                <button onclick="filterCategory('novedades')" class="category-btn border-2 border-gray-200 hover:border-kfc-red text-gray-700 text-xs font-extrabold px-4 py-2 rounded-full whitespace-nowrap transition">
+                    🔥 Novedades
+                </button>
+                <button onclick="filterCategory('crujiente')" class="category-btn border-2 border-gray-200 hover:border-kfc-red text-gray-700 text-xs font-extrabold px-4 py-2 rounded-full whitespace-nowrap transition">
+                    🍗 Pollo Crujiente
+                </button>
+                <button onclick="filterCategory('hamburguesas')" class="category-btn border-2 border-gray-200 hover:border-kfc-red text-gray-700 text-xs font-extrabold px-4 py-2 rounded-full whitespace-nowrap transition">
+                    🍔 Burgers & Wraps
+                </button>
+                <button onclick="filterCategory('familia')" class="category-btn border-2 border-gray-200 hover:border-kfc-red text-gray-700 text-xs font-extrabold px-4 py-2 rounded-full whitespace-nowrap transition">
+                    👨‍👩‍👧‍👦 Paquetes Familiares
+                </button>
+                <button onclick="filterCategory('postres')" class="category-btn border-2 border-gray-200 hover:border-kfc-red text-gray-700 text-xs font-extrabold px-4 py-2 rounded-full whitespace-nowrap transition">
+                    🍦 Complementos & Postres
+                </button>
+            </div>
+        </div>
+
+        <!-- Menu Grid -->
+        <div id="menuGrid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+            <!-- Dynamic Menu Items JS will populate -->
+        </div>
+    </main>
+
+    <!-- Floating Colonel AI Trigger Button -->
+    <div class="fixed bottom-5 right-5 z-40">
+        <button onclick="toggleColonelChat()" class="bg-kfc-red hover:bg-kfc-darkred text-white p-4 rounded-full shadow-2xl flex items-center gap-3 group border-2 border-white transition transform hover:scale-105">
+            <div class="w-8 h-8 rounded-full bg-white text-kfc-red flex items-center justify-center font-black text-sm">
+                C
+            </div>
+            <span class="font-bold text-xs pr-1 hidden sm:inline-block">Consultor Coronel IA</span>
+            <span class="absolute -top-1 -left-1 flex h-3 w-3">
+                <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-kfc-gold opacity-75"></span>
+                <span class="relative inline-flex rounded-full h-3 w-3 bg-kfc-gold"></span>
+            </span>
+        </button>
+    </div>
+
+    <!-- Colonel Chat Modal Drawer -->
+    <div id="colonelChatModal" class="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 hidden flex justify-end transition-opacity">
+        <div class="bg-white w-full max-w-md h-full flex flex-col shadow-2xl">
+            <!-- Chat Header -->
+            <div class="bg-kfc-black text-white p-4 flex items-center justify-between border-b-4 border-kfc-red">
+                <div class="flex items-center gap-3">
+                    <div class="w-10 h-10 bg-kfc-red rounded-full flex items-center justify-center font-black text-lg text-white border-2 border-white">
+                        C
+                    </div>
+                    <div>
+                        <h3 class="font-extrabold text-sm leading-tight">Asesor Coronel Sanders</h3>
+                        <p class="text-[11px] text-gray-400">Consultor Inteligente de Menú KFC</p>
+                    </div>
+                </div>
+                <button onclick="toggleColonelChat()" class="text-gray-400 hover:text-white p-2">
+                    <i class="fa-solid fa-xmark text-xl"></i>
+                </button>
+            </div>
+
+            <!-- Quick Suggestions Header -->
+            <div class="p-3 bg-gray-50 border-b border-gray-200 text-xs">
+                <p class="font-bold text-gray-600 mb-2">Preguntas frecuentes rápidas:</p>
+                <div class="flex gap-1.5 overflow-x-auto pb-1 scrollbar-thin">
+                    <button onclick="sendQuickPrompt('¿Qué combo me recomiendas para 4 personas?')" class="bg-white border border-gray-300 hover:border-kfc-red px-2.5 py-1 rounded-full text-[11px] font-medium whitespace-nowrap">
+                        👨‍👩‍👧‍👦 Combo Familiar
+                    </button>
+                    <button onclick="sendQuickPrompt('¿Cuáles son las opciones picantes?')" class="bg-white border border-gray-300 hover:border-kfc-red px-2.5 py-1 rounded-full text-[11px] font-medium whitespace-nowrap">
+                        🌶️ Opciones Picantes
+                    </button>
+                    <button onclick="sendQuickPrompt('¿Cuáles son los productos más económicos?')" class="bg-white border border-gray-300 hover:border-kfc-red px-2.5 py-1 rounded-full text-[11px] font-medium whitespace-nowrap">
+                        💰 Mayor Ahorro
+                    </button>
+                </div>
+            </div>
+
+            <!-- Chat Messages Log -->
+            <div id="chatMessages" class="flex-1 p-4 overflow-y-auto space-y-3 bg-kfc-cream/50 text-xs sm:text-sm">
+                <!-- Message from Colonel -->
+                <div class="flex items-start gap-2 max-w-[85%]">
+                    <div class="w-7 h-7 bg-kfc-red rounded-full text-white flex items-center justify-center font-bold text-xs flex-shrink-0">
+                        C
+                    </div>
+                    <div class="bg-white p-3 rounded-2xl rounded-tl-none border border-gray-200 shadow-sm text-gray-800">
+                        ¡Hola! Soy tu <strong>Consultor KFC</strong>. ¿Para cuántas personas pides hoy o qué antojo tienes? Te recomendaré la mejor combinación.
+                    </div>
+                </div>
+            </div>
+
+            <!-- Chat Input Area -->
+            <div class="p-3 bg-white border-t border-gray-200">
+                <form id="chatForm" onsubmit="handleChatSubmit(event)" class="flex gap-2">
+                    <input type="text" id="chatInput" placeholder="Ej: Busco algo picante para 2 personas..." class="flex-1 bg-gray-100 px-3 py-2 rounded-xl text-xs sm:text-sm focus:outline-none focus:bg-white border border-transparent focus:border-kfc-red">
+                    <button type="submit" class="bg-kfc-red hover:bg-kfc-darkred text-white px-4 py-2 rounded-xl text-xs font-bold transition flex items-center justify-center">
+                        <i class="fa-solid fa-paper-plane"></i>
+                    </button>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Slide-over Shopping Cart -->
+    <div id="cartModal" class="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 hidden flex justify-end">
+        <div class="bg-white w-full max-w-md h-full flex flex-col shadow-2xl">
+            <!-- Cart Header -->
+            <div class="bg-kfc-red text-white p-4 flex items-center justify-between">
+                <div class="flex items-center gap-2">
+                    <i class="fa-solid fa-bucket text-xl"></i>
+                    <h3 class="font-extrabold text-base">Tu Pedido KFC</h3>
+                </div>
+                <button onclick="toggleCartModal()" class="text-white hover:text-gray-200 p-1">
+                    <i class="fa-solid fa-xmark text-xl"></i>
+                </button>
+            </div>
+
+            <!-- Delivery / Pickup Toggle -->
+            <div class="p-3 bg-gray-100 flex gap-2 text-xs font-bold">
+                <button id="btnDelivery" onclick="setOrderType('delivery')" class="flex-1 py-2 rounded-lg bg-white shadow-sm text-kfc-red text-center">
+                    <i class="fa-solid fa-motorcycle mr-1"></i> Delivery
+                </button>
+                <button id="btnPickup" onclick="setOrderType('pickup')" class="flex-1 py-2 rounded-lg text-gray-600 text-center hover:bg-white">
+                    <i class="fa-solid fa-store mr-1"></i> Recoger en Tienda
+                </button>
+            </div>
+
+            <!-- Items List -->
+            <div id="cartItemsContainer" class="flex-1 p-4 overflow-y-auto space-y-3">
+                <!-- Cart items dynamically rendered here -->
+            </div>
+
+            <!-- Summary & Checkout Footer -->
+            <div class="p-4 bg-gray-50 border-t border-gray-200 space-y-3">
+                <div class="space-y-1.5 text-xs text-gray-600">
+                    <div class="flex justify-between">
+                        <span>Subtotal:</span>
+                        <span id="subtotalPrice" class="font-bold text-gray-900">$0.00</span>
+                    </div>
+                    <div class="flex justify-between">
+                        <span>Costo de Envío:</span>
+                        <span id="shippingPrice" class="font-bold text-gray-900">$2.50</span>
+                    </div>
+                    <div class="flex justify-between text-kfc-red font-bold">
+                        <span>Descuento Cupón:</span>
+                        <span id="discountPrice">-$0.00</span>
+                    </div>
+                    <div class="flex justify-between text-sm font-black text-gray-900 pt-2 border-t border-gray-200">
+                        <span>Total:</span>
+                        <span id="totalPrice" class="text-lg text-kfc-red">$0.00</span>
+                    </div>
+                </div>
+
+                <button onclick="processCheckout()" class="w-full bg-kfc-red hover:bg-kfc-darkred text-white py-3 rounded-xl font-extrabold text-sm uppercase tracking-wider shadow-lg transition flex items-center justify-center gap-2">
+                    <span>Confirmar y Ordenar</span>
+                    <i class="fa-solid fa-arrow-right"></i>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Store Finder Modal -->
+    <div id="storeModal" class="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
+        <div class="bg-white w-full max-w-md rounded-2xl shadow-2xl overflow-hidden">
+            <div class="bg-kfc-black text-white p-4 flex justify-between items-center">
+                <h3 class="font-extrabold text-sm flex items-center gap-2">
+                    <i class="fa-solid fa-location-dot text-kfc-red"></i> Seleccionar Sucursal KFC
+                </h3>
+                <button onclick="toggleStoreFinder()" class="text-gray-400 hover:text-white">
+                    <i class="fa-solid fa-xmark text-lg"></i>
+                </button>
+            </div>
+            <div class="p-4 space-y-3">
+                <input type="text" placeholder="Ingresa tu ciudad o dirección..." class="w-full bg-gray-100 px-3 py-2 rounded-xl text-xs border border-gray-200 focus:outline-none focus:border-kfc-red">
+                
+                <div class="space-y-2 max-h-60 overflow-y-auto pr-1 text-xs">
+                    <div onclick="selectStore('KFC Centro Historico')" class="p-3 border rounded-xl hover:border-kfc-red cursor-pointer flex justify-between items-center bg-red-50/50">
+                        <div>
+                            <p class="font-bold text-gray-900">KFC Centro Histórico</p>
+                            <p class="text-[11px] text-gray-500">Av. Principal #123 • Abierto hasta 23:00</p>
+                            <span class="inline-block bg-green-100 text-green-700 text-[10px] font-bold px-2 py-0.5 rounded-full mt-1">AutoMac Disponible</span>
+                        </div>
+                        <i class="fa-solid fa-chevron-right text-gray-400"></i>
+                    </div>
+
+                    <div onclick="selectStore('KFC Plaza Galeria')" class="p-3 border rounded-xl hover:border-kfc-red cursor-pointer flex justify-between items-center">
+                        <div>
+                            <p class="font-bold text-gray-900">KFC Plaza Galerías</p>
+                            <p class="text-[11px] text-gray-500">Centro Comercial Nivel 1 • Abierto hasta 22:00</p>
+                            <span class="inline-block bg-blue-100 text-blue-700 text-[10px] font-bold px-2 py-0.5 rounded-full mt-1">Express Pick-up</span>
+                        </div>
+                        <i class="fa-solid fa-chevron-right text-gray-400"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Notification Toast -->
+    <div id="toastNotification" class="fixed top-20 right-5 z-50 bg-kfc-black text-white text-xs font-bold px-4 py-3 rounded-xl shadow-2xl flex items-center gap-3 transform translate-x-full transition-transform duration-300 border-l-4 border-kfc-red">
+        <i id="toastIcon" class="fa-solid fa-circle-check text-kfc-gold text-base"></i>
+        <span id="toastMessage">Producto agregado al carrito</span>
+    </div>
+
+    <footer class="bg-kfc-black text-white pt-12 pb-6 border-t-4 border-kfc-red">
+        <div class="container mx-auto px-4 grid grid-cols-1 md:grid-cols-4 gap-8 mb-8 text-xs">
+            <div>
+                <div class="flex items-center gap-2 mb-3">
+                    <div class="w-8 h-8 bg-kfc-red rounded-full flex items-center justify-center font-black text-white text-sm">
+                        KFC
+                    </div>
+                    <span class="font-black text-lg">KFC Portal</span>
+                </div>
+                <p class="text-gray-400 leading-relaxed">
+                    Consultor digital oficial de menú, combinaciones inteligentes e información sobre novedades del pollo frito más famoso del mundo.
+                </p>
+            </div>
+
+            <div>
+                <h4 class="font-bold text-sm text-kfc-gold uppercase mb-3">Secciones</h4>
+                <ul class="space-y-2 text-gray-300">
+                    <li><a href="#menu-section" class="hover:text-kfc-red transition">Menú Digital & Precios</a></li>
+                    <li><a href="#" onclick="openColonelChat('general')" class="hover:text-kfc-red transition">Consultor Inteligente IA</a></li>
+                    <li><a href="#" onclick="toggleStoreFinder()" class="hover:text-kfc-red transition">Localizador de Restaurantes</a></li>
+                    <li><a href="#" class="hover:text-kfc-red transition">Cupones Digitales Exclusivos</a></li>
+                </ul>
+            </div>
+
+            <div>
+                <h4 class="font-bold text-sm text-kfc-gold uppercase mb-3">Compromiso KFC</h4>
+                <ul class="space-y-2 text-gray-300">
+                    <li>Receta 11 Hierbas y Especias</li>
+                    <li>Pollo 100% Fresco e Inspeccionado</li>
+                    <li>Información Alergénica y Nutricional</li>
+                    <li>Estándares de Calidad Internacional</li>
+                </ul>
+            </div>
+
+            <div>
+                <h4 class="font-bold text-sm text-kfc-gold uppercase mb-3">Síguenos</h4>
+                <div class="flex gap-3 text-base">
+                    <a href="#" class="w-8 h-8 bg-gray-800 hover:bg-kfc-red rounded-full flex items-center justify-center transition"><i class="fa-brands fa-facebook-f"></i></a>
+                    <a href="#" class="w-8 h-8 bg-gray-800 hover:bg-kfc-red rounded-full flex items-center justify-center transition"><i class="fa-brands fa-instagram"></i></a>
+                    <a href="#" class="w-8 h-8 bg-gray-800 hover:bg-kfc-red rounded-full flex items-center justify-center transition"><i class="fa-brands fa-tiktok"></i></a>
+                </div>
+            </div>
+        </div>
+
+        <div class="container mx-auto px-4 pt-6 border-t border-gray-800 text-center text-[11px] text-gray-500">
+            <p>© 2026 KFC Corp. Todos los derechos reservados. Aplicación interactiva de consulta de menú e innovaciones.</p>
+        </div>
+    </footer>
+
+    <script>
+        // Menu Data Database
+        const menuData = [
+            {
+                id: 1,
+                name: "Mega Bucket 8 Pzs + Tenders",
+                category: "familia",
+                price: 18.99,
+                oldPrice: 24.99,
+                badge: "Más Vendido",
+                isNew: false,
+                calories: "1450 kcal",
+                image: "https://images.unsplash.com/photo-1626645738196-c2a7c87a8f58?auto=format&fit=crop&w=500&q=80",
+                description: "8 piezas de pollo Cruji o Receta Secreta, 4 Extra Crispy Tenders, 2 papas medianas y 4 salsas."
+            },
+            {
+                id: 2,
+                name: "Spicy Chizza Especial 2026",
+                category: "novedades",
+                price: 9.99,
+                oldPrice: null,
+                badge: "¡NUEVO!",
+                isNew: true,
+                calories: "780 kcal",
+                image: "https://images.unsplash.com/photo-1513104890138-7c749659a591?auto=format&fit=crop&w=500&q=80",
+                description: "Base de filete de pollo empanizado crujiente bañado en salsa marinara, pepperoni y queso mozzarella fundido."
+            },
+            {
+                id: 3,
+                name: "Kentucky Crunch Burger",
+                category: "hamburguesas",
+                price: 7.49,
+                oldPrice: 8.99,
+                badge: "Popular",
+                isNew: false,
+                calories: "650 kcal",
+                image: "https://images.unsplash.com/photo-1568901346375-23c9450c58cd?auto=format&fit=crop&w=500&q=80",
+                description: "Triple filete de pechuga extra crujiente, queso cheddar, pepinillos y salsa secreta del Coronel en pan brioche."
+            },
+            {
+                id: 4,
+                name: "Box Meal 5 Piezas Crispy",
+                category: "crujiente",
+                price: 11.50,
+                oldPrice: null,
+                badge: "Combo",
+                isNew: false,
+                calories: "920 kcal",
+                image: "https://images.unsplash.com/photo-1562967914-608f82629710?auto=format&fit=crop&w=500&q=80",
+                description: "2 piezas de pollo, 2 Tenders, papas fritas medianas, ensalada de col y bebida de 500ml."
+            },
+            {
+                id: 5,
+                name: "Twister Wrap Barbecue",
+                category: "hamburguesas",
+                price: 6.25,
+                oldPrice: null,
+                badge: null,
+                isNew: false,
+                calories: "510 kcal",
+                image: "https://images.unsplash.com/photo-1626700051175-6818013e1d4f?auto=format&fit=crop&w=500&q=80",
+                description: "Tenders crujientes envueltos en tortilla de trigo con lechuga fresca, tomate y aderezo BBQ barbacoa."
+            },
+            {
+                id: 6,
+                name: "Secret Recipe Fries Grande",
+                category: "postres",
+                price: 3.50,
+                oldPrice: null,
+                badge: "Mejorado",
+                isNew: true,
+                calories: "380 kcal",
+                image: "https://images.unsplash.com/photo-1573080496219-bb080dd4f877?auto=format&fit=crop&w=500&q=80",
+                description: "Papas sazonadas con la mezcla especial de 11 hierbas y especias del Coronel."
+            },
+            {
+                id: 7,
+                name: "KFC Biscuit Miel x 4",
+                category: "postres",
+                price: 3.99,
+                oldPrice: null,
+                badge: "Clásico",
+                isNew: false,
+                calories: "420 kcal",
+                image: "https://images.unsplash.com/photo-1509440159596-0249088772ff?auto=format&fit=crop&w=500&q=80",
+                description: "Biscuits horneados al momento, esponjosos con toque de mantequilla y mantequilla de miel."
+            },
+            {
+                id: 8,
+                name: "Bucket Familiar 12 Piezas",
+                category: "familia",
+                price: 23.99,
+                oldPrice: 28.50,
+                badge: "Ahorro",
+                isNew: false,
+                calories: "2100 kcal",
+                image: "https://images.unsplash.com/photo-1569058242253-92a9c755a0ec?auto=format&fit=crop&w=500&q=80",
+                description: "12 Piezas de pollo (Receta Secreta o Crujiente), 2 complementos grandes a elección y 4 biscuits."
+            }
+        ];
+
+        // Application State Variables
+        let cart = [];
+        let orderType = 'delivery'; // 'delivery' or 'pickup'
+        let appliedCouponDiscount = 0;
+        let selectedStore = 'KFC Centro Histórico';
+
+        // Initialize App on DOM Load
+        window.addEventListener('DOMContentLoaded', () => {
+            renderMenu(menuData);
+            startCountdownTimer();
+        });
+
+        // Render Menu Items Function
+        function renderMenu(items) {
+            const grid = document.getElementById('menuGrid');
+            grid.innerHTML = '';
+
+            if (items.length === 0) {
+                grid.innerHTML = `
+                    <div class="col-span-full text-center py-12 text-gray-500">
+                        <i class="fa-solid fa-drumstick-bite text-4xl mb-3 text-gray-300"></i>
+                        <p class="font-bold text-base">No encontramos opciones para tu búsqueda.</p>
+                        <p class="text-xs">Intenta filtrar por otra categoría o término.</p>
+                    </div>
+                `;
+                return;
+            }
+
+            items.forEach(item => {
+                const card = document.createElement('div');
+                card.className = "bg-white rounded-2xl overflow-hidden border border-gray-200/80 shadow-sm hover:shadow-xl transition-all duration-300 flex flex-col justify-between group";
+                
+                card.innerHTML = `
+                    <div>
+                        <div class="relative overflow-hidden h-44 bg-gray-100">
+                            <img src="${item.image}" alt="${item.name}" class="w-full h-full object-cover group-hover:scale-105 transition duration-500">
+                            ${item.badge ? `<span class="absolute top-3 left-3 bg-kfc-red text-white text-[10px] font-black px-2.5 py-1 rounded-full uppercase tracking-wider shadow">${item.badge}</span>` : ''}
+                            ${item.isNew ? `<span class="absolute top-3 right-3 bg-kfc-gold text-kfc-black text-[10px] font-black px-2.5 py-1 rounded-full uppercase tracking-wider shadow">Nuevo</span>` : ''}
+                        </div>
+                        <div class="p-4 space-y-2">
+                            <div class="flex items-center justify-between">
+                                <span class="text-[10px] font-bold text-gray-400 uppercase tracking-widest">${item.calories}</span>
+                            </div>
+                            <h3 class="font-extrabold text-base text-gray-900 group-hover:text-kfc-red transition line-clamp-1">${item.name}</h3>
+                            <p class="text-xs text-gray-500 line-clamp-2 leading-relaxed">${item.description}</p>
+                        </div>
+                    </div>
+                    <div class="p-4 pt-0 flex items-center justify-between border-t border-gray-100 mt-2">
+                        <div>
+                            <span class="text-lg font-black text-gray-900">$${item.price.toFixed(2)}</span>
+                            ${item.oldPrice ? `<span class="text-xs line-through text-gray-400 ml-1.5">$${item.oldPrice.toFixed(2)}</span>` : ''}
+                        </div>
+                        <button onclick="addToCart(${item.id})" class="bg-kfc-red hover:bg-kfc-darkred text-white text-xs font-bold px-3.5 py-2 rounded-xl transition shadow flex items-center gap-1.5 active:scale-95">
+                            <i class="fa-solid fa-plus text-xs"></i> Agregar
+                        </button>
+                    </div>
+                `;
+                grid.appendChild(card);
+            });
+        }
+
+        // Category Filter Logic
+        function filterCategory(cat) {
+            document.querySelectorAll('.category-btn').forEach(btn => {
+                btn.classList.remove('bg-kfc-red', 'text-white', 'border-kfc-red');
+                btn.classList.add('border-gray-200', 'text-gray-700');
+            });
+            event.target.classList.add('bg-kfc-red', 'text-white', 'border-kfc-red');
+
+            if (cat === 'all') {
+                renderMenu(menuData);
+            } else if (cat === 'novedades') {
+                renderMenu(menuData.filter(i => i.isNew || i.category === 'novedades'));
+            } else {
+                renderMenu(menuData.filter(i => i.category === cat));
+            }
+        }
+
+        // Search Logic
+        function filterMenu() {
+            const query = document.getElementById('searchInput').value.toLowerCase();
+            const filtered = menuData.filter(item => 
+                item.name.toLowerCase().includes(query) || 
+                item.description.toLowerCase().includes(query)
+            );
+            renderMenu(filtered);
+        }
+
+        function filterMenuMobile() {
+            const query = document.getElementById('mobileSearchInput').value.toLowerCase();
+            const filtered = menuData.filter(item => 
+                item.name.toLowerCase().includes(query) || 
+                item.description.toLowerCase().includes(query)
+            );
+            renderMenu(filtered);
+        }
+
+        // Shopping Cart System
+        function addToCart(itemId) {
+            const product = menuData.find(p => p.id === itemId);
+            if (!product) return;
+
+            const existing = cart.find(item => item.id === itemId);
+            if (existing) {
+                existing.quantity += 1;
+            } else {
+                cart.push({ ...product, quantity: 1 });
+            }
+
+            updateCartUI();
+            showToast(`¡${product.name} agregado!`);
+        }
+
+        function updateCartQuantity(itemId, change) {
+            const item = cart.find(i => i.id === itemId);
+            if (!item) return;
+
+            item.quantity += change;
+            if (item.quantity <= 0) {
+                cart = cart.filter(i => i.id !== itemId);
+            }
+            updateCartUI();
+        }
+
+        function updateCartUI() {
+            // Count total items
+            const totalCount = cart.reduce((sum, item) => sum + item.quantity, 0);
+            document.getElementById('cartCountBadge').innerText = totalCount;
+
+            const container = document.getElementById('cartItemsContainer');
+            container.innerHTML = '';
+
+            if (cart.length === 0) {
+                container.innerHTML = `
+                    <div class="text-center py-16 text-gray-400">
+                        <i class="fa-solid fa-bucket text-5xl mb-3 text-gray-200"></i>
+                        <p class="font-bold text-sm text-gray-600">Tu cubo está vacío</p>
+                        <p class="text-xs">¡Agrega tus productos KFC favoritos para continuar!</p>
+                    </div>
+                `;
+            } else {
+                cart.forEach(item => {
+                    const itemEl = document.createElement('div');
+                    itemEl.className = "flex items-center justify-between p-3 bg-gray-50 rounded-xl border border-gray-200";
+                    itemEl.innerHTML = `
+                        <div class="flex items-center gap-3">
+                            <img src="${item.image}" alt="${item.name}" class="w-12 h-12 object-cover rounded-lg">
+                            <div>
+                                <h4 class="font-bold text-xs text-gray-900 line-clamp-1">${item.name}</h4>
+                                <span class="text-xs font-black text-kfc-red">$${(item.price * item.quantity).toFixed(2)}</span>
+                            </div>
+                        </div>
+                        <div class="flex items-center gap-2 bg-white px-2 py-1 rounded-lg border border-gray-200">
+                            <button onclick="updateCartQuantity(${item.id}, -1)" class="text-gray-500 hover:text-kfc-red px-1 font-bold">-</button>
+                            <span class="text-xs font-bold w-4 text-center">${item.quantity}</span>
+                            <button onclick="updateCartQuantity(${item.id}, 1)" class="text-gray-500 hover:text-kfc-red px-1 font-bold">+</button>
+                        </div>
+                    `;
+                    container.appendChild(itemEl);
+                });
+            }
+
+            // Subtotal & Totals
+            const subtotal = cart.reduce((sum, item) => sum + (item.price * item.quantity), 0);
+            const shipping = orderType === 'delivery' && cart.length > 0 ? 2.50 : 0.00;
+            const discount = appliedCouponDiscount;
+            const total = Math.max(0, subtotal + shipping - discount);
+
+            document.getElementById('subtotalPrice').innerText = `$${subtotal.toFixed(2)}`;
+            document.getElementById('shippingPrice').innerText = `$${shipping.toFixed(2)}`;
+            document.getElementById('discountPrice').innerText = `-$${discount.toFixed(2)}`;
+            document.getElementById('totalPrice').innerText = `$${total.toFixed(2)}`;
+        }
+
+        function setOrderType(type) {
+            orderType = type;
+            const btnDev = document.getElementById('btnDelivery');
+            const btnPick = document.getElementById('btnPickup');
+
+            if (type === 'delivery') {
+                btnDev.className = "flex-1 py-2 rounded-lg bg-white shadow-sm text-kfc-red text-center font-bold";
+                btnPick.className = "flex-1 py-2 rounded-lg text-gray-600 text-center hover:bg-white";
+            } else {
+                btnPick.className = "flex-1 py-2 rounded-lg bg-white shadow-sm text-kfc-red text-center font-bold";
+                btnDev.className = "flex-1 py-2 rounded-lg text-gray-600 text-center hover:bg-white";
+            }
+            updateCartUI();
+        }
+
+        function toggleCartModal() {
+            const modal = document.getElementById('cartModal');
+            modal.classList.toggle('hidden');
+        }
+
+        function toggleStoreFinder() {
+            const modal = document.getElementById('storeModal');
+            modal.classList.toggle('hidden');
+        }
+
+        function selectStore(storeName) {
+            selectedStore = storeName;
+            document.getElementById('currentStoreText').innerText = storeName;
+            toggleStoreFinder();
+            showToast(`Sucursal seleccionada: ${storeName}`);
+        }
+
+        function toggleColonelChat() {
+            const modal = document.getElementById('colonelChatModal');
+            modal.classList.toggle('hidden');
+        }
+
+        function openColonelChat(type) {
+            toggleColonelChat();
+            if (type === 'recomendacion') {
+                sendQuickPrompt("Recomiéndame una combinación estrella con los nuevos productos de la temporada.");
+            }
+        }
+
+        function sendQuickPrompt(text) {
+            document.getElementById('chatInput').value = text;
+            handleChatSubmit(new Event('submit'));
+        }
+
+        function handleChatSubmit(e) {
+            e.preventDefault();
+            const input = document.getElementById('chatInput');
+            const message = input.value.trim();
+            if (!message) return;
+
+            appendChatMessage('user', message);
+            input.value = '';
+
+            // Simulate Colonel AI Response
+            setTimeout(() => {
+                generateColonelReply(message);
+            }, 600);
+        }
+
+        function appendChatMessage(sender, text) {
+            const container = document.getElementById('chatMessages');
+            const msgDiv = document.createElement('div');
+            
+            if (sender === 'user') {
+                msgDiv.className = "flex items-start justify-end gap-2 max-w-[85%] ml-auto";
+                msgDiv.innerHTML = `
+                    <div class="bg-kfc-red text-white p-3 rounded-2xl rounded-tr-none shadow-sm text-gray-800">
+                        ${text}
+                    </div>
+                `;
+            } else {
+                msgDiv.className = "flex items-start gap-2 max-w-[85%]";
+                msgDiv.innerHTML = `
+                    <div class="w-7 h-7 bg-kfc-red rounded-full text-white flex items-center justify-center font-bold text-xs flex-shrink-0">
+                        C
+                    </div>
+                    <div class="bg-white p-3 rounded-2xl rounded-tl-none border border-gray-200 shadow-sm text-gray-800">
+                        ${text}
+                    </div>
+                `;
+            }
+            container.appendChild(msgDiv);
+            container.scrollTop = container.scrollHeight;
+        }
+
+        function generateColonelReply(userText) {
+            const lower = userText.toLowerCase();
+            let reply = "";
+
+            if (lower.includes('4 personas') || lower.includes('familiar') || lower.includes('familia')) {
+                reply = "Para 4 personas te recomiendo encarecidamente el <strong>Mega Bucket 8 Pzs + Tenders ($18.99)</strong>. Incluye piezas de pollo jugoso, tenders y complementos. ¿Te gustaría agregarlo a tu orden?";
+            } else if (lower.includes('picante') || lower.includes('spicy')) {
+                reply = "Si buscas un toque picante único, te sugiero el nuevo <strong>Spicy Chizza ($9.99)</strong> o nuestras alitas bañado en salsa Hot Kentucky. ¡Llenos de sabor crujiente!";
+            } else if (lower.includes('económico') || lower.includes('barato') || lower.includes('ahorro')) {
+                reply = "Para maximizar tu presupuesto te recomiendo el <strong>Twister Wrap ($6.25)</strong> o aplicar nuestro cupón de hoy <strong>KRUNCH2026</strong> para un descuento especial.";
+            } else {
+                reply = "¡Excelente elección! Recuerda que todas nuestras piezas se preparan al momento con nuestras 11 hierbas y especias secretas. ¿Deseas ver las opciones de hamburguesas o paquetes de pollo?";
+            }
+
+            appendChatMessage('colonel', reply);
+        }
+
+        // Coupon Code Logic
+        function copyCouponCode(code) {
+            const tempInput = document.createElement("input");
+            tempInput.value = code;
+            document.body.appendChild(tempInput);
+            tempInput.select();
+            document.execCommand("copy");
+            document.body.removeChild(tempInput);
+
+            appliedCouponDiscount = 3.00;
+            updateCartUI();
+            showToast(`¡Cupón ${code} aplicado! (-$3.00)`);
+        }
+
+        // Countdown Timer Logic
+        function startCountdownTimer() {
+            let totalSeconds = 3 * 3600 + 45 * 60 + 12;
+            setInterval(() => {
+                if (totalSeconds <= 0) return;
+                totalSeconds--;
+
+                const hrs = Math.floor(totalSeconds / 3600);
+                const mins = Math.floor((totalSeconds % 3600) / 60);
+                const secs = totalSeconds % 60;
+
+                document.getElementById('hours').innerText = String(hrs).padStart(2, '0');
+                document.getElementById('minutes').innerText = String(mins).padStart(2, '0');
+                document.getElementById('seconds').innerText = String(secs).padStart(2, '0');
+            }, 1000);
+        }
+
+        // Toast Notification System
+        function showToast(msg) {
+            const toast = document.getElementById('toastNotification');
+            document.getElementById('toastMessage').innerText = msg;
+            toast.classList.remove('translate-x-full');
+
+            setTimeout(() => {
+                toast.classList.add('translate-x-full');
+            }, 3000);
+        }
+
+        // Simulated Checkout
+        function processCheckout() {
+            if (cart.length === 0) {
+                showToast("Tu carrito está vacío.");
+                return;
+            }
+            alert("¡Gracias por tu pedido! Tu orden en KFC ha sido recibida y está en preparación.");
+            cart = [];
+            updateCartUI();
+            toggleCartModal();
+        }
+    </script>
+</body>
+</html>
